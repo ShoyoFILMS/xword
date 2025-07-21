@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>ドラッグ＆ドロップサンプル</title>
+  <style>
+    .container {
+      display: flex;
+      gap: 0;
+      margin: 40px;
+    }
+
+    .box {
+      width: 30px;
+      height: 30px;
+      border: 2px solid #333;
+      position: relative;
+      text-align:center;
+      margin:0;
+      background-color:#fff;
+    }
+
+    .box_f{
+      background-color:#74bffc;
+    }
+
+    .square {
+      width: 100%;
+      height: 100%;
+      background-color:#eee;
+      cursor: grab;
+      font-weight: bold;
+    }
+
+    .box.drag-over {
+      border-color: #4CAF50;
+      background-color: #f0fff0;
+    }
+    .box::before {
+      content: attr(label); /* 表示したい文字 */
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 20px;
+      color: rgba(0, 0, 0, 0.3); /* 透明感 */
+      pointer-events: none; /* クリック無効 */
+      white-space: nowrap;
+    }
+ </style>
+</head>
+<body>
+  <table class="container">
+    <tr>
+      <td></td>
+      <td></td>
+      <td class="box" label="A"></td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td></td>
+      <td></td>
+      <td class="box"></td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td></td>
+      <td></td>
+      <td class="box"></td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td></td>
+      <td></td>
+      <td class="box"></td>
+      <td></td>
+      <td></td>
+      <td class="box" label="B"></td>
+    </tr>
+    <tr>
+      <td class="box box_f" id="b1"></td>
+      <td class="box box_f" id="b2" label="C"></td>
+      <td class="box box_f" id="b3"></td>
+      <td class="box box_f" id="b4"></td>
+      <td class="box box_f" id="b5"></td>
+      <td class="box box_f" id="b6"></td>
+    </tr>
+    <tr>
+      <td></td>
+      <td class="box"></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td class="box"></td>
+    </tr>
+    <tr>
+      <td></td>
+      <td class="box"></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td class="box"></td>
+    </tr>
+  </table>
+  <table class="container">
+    <tr>
+      <td class="box">
+        <div class="square" draggable="true" id="s1">じ</div>
+      </td>
+      <td class="box">
+        <div class="square" draggable="true" id="s2">こ</div>
+      </td>
+      <td class="box">
+        <div class="square" draggable="true" id="s3">か</div>
+      </td>
+      <td class="box">
+        <div class="square" draggable="true" id="s4">ゃ</div>
+      </td>
+      <td class="box">
+        <div class="square" draggable="true" id="s5">く</div>
+      </td>
+      <td class="box">
+        <div class="square" draggable="true" id="s6">ご</div>
+      </td>
+      <td class="box">
+        <div class="square" draggable="true" id="s7">は</div>
+      </td>
+    </tr>
+    <tr>
+      <td class="box">
+        <div class="square" draggable="true" id="s8">ん</div>
+      </td>
+      <td class="box">
+        <div class="square" draggable="true" id="s9">よ</div>
+      </td>
+      <td class="box">
+        <div class="square" draggable="true" id="s10">こ</div>
+      </td>
+      <td class="box">
+        <div class="square" draggable="true" id="s11">ぎ</div>
+      </td>
+      <td class="box">
+        <div class="square" draggable="true" id="s12">う</div>
+      </td>
+      <td class="box">
+        <div class="square" draggable="true" id="s13">ろ</div>
+      </td>
+      <td class="box">
+        <div class="square" draggable="true" id="s14">ほ</div>
+      </td>
+      <td class="box">
+        <div class="square" draggable="true" id="s15">ょ</div>
+      </td>
+    </tr>
+  </table>
+  <button onclick="check()">check</button>
+  <p id="result"></p>
+  <h1>これからやる事を告げるカード</h1>
+  <p>A:国や主君や世間などにそむいて逆らう事</p>
+  <p>B:学校で授業が終わった後の時間</p>
+  <p>C:人の精神や内面</p>
+
+  <script>
+    const squares = document.querySelectorAll('.square');
+    const boxes = document.querySelectorAll('.box');
+
+    const s1 = document.getElementById("s1");
+    const s2 = document.getElementById("s2");
+    const s3 = document.getElementById("s3");
+    const s4 = document.getElementById("s4");
+    const s5 = document.getElementById("s5");
+    const s6 = document.getElementById("s6");
+    const s7 = document.getElementById("s7");
+    const s8 = document.getElementById("s8");
+    const s9 = document.getElementById("s9");
+    const s10 = document.getElementById("s10");
+    const s11 = document.getElementById("s11");
+    const s12 = document.getElementById("s12");
+    const s13 = document.getElementById("s13");
+    const s14 = document.getElementById("s14");
+    const s15 = document.getElementById("s15");
+
+    const result = document.getElementById("result");
+  
+    let dragged = null;
+
+    squares.forEach(square => {
+      square.addEventListener('dragstart', () => {
+        dragged = square;
+      });
+    });
+
+    boxes.forEach(box => {
+      // ドラッグ対象が乗ったときに許可
+      box.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        box.classList.add('drag-over');
+      });
+
+      // ドラッグ対象が離れたときにスタイル戻す
+      box.addEventListener('dragleave', () => {
+        box.classList.remove('drag-over');
+      });
+
+      // ドロップ処理
+      box.addEventListener('drop', (e) => {
+        box.classList.remove('drag-over');
+        if (!box.contains(dragged)) {
+          // ドロップ先に既に要素があれば何もしない（1つ制限）
+          if (box.querySelector('.square') == null) {
+            box.appendChild(dragged);
+          }
+        }
+      });
+    });
+
+    function check(){
+      if(s9.parentNode.id == "b1" && (s2.parentNode.id == "b2" || s10.parentNode.id == "b2") &&
+        s5.parentNode.id == "b3" && s1.parentNode.id == "b4" && s15.parentNode.id == "b5" &&
+        s12.parentNode.id == "b6"){
+          result.innerHTML="正解！";
+        }
+    }
+  </script>
+</body>
+</html>
