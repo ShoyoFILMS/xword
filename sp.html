@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>card 0</title>
+<style type="text/css">
+html, body {  /* スマートフォンでの画面外スクロール禁止用 */
+  overflow: hidden;
+}
+div.container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+}
+.box {  /* カードを置くボックス */
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 2px solid #333;
+  position: relative;
+  text-align:center;
+  margin:0;
+  background-color:#fff;
+}
+.box_f{
+  background-color:#74bffc;
+}
+.box-over {  /* ボックス上にカードがドラッグされてきたらボックスをやや白くする */
+  background: rgba(255, 255, 255, 0.3);
+}
+.card {  /* カード */
+  width: 30px;
+  height: 30px;
+  background-color:#eee;
+  cursor: grab;
+  font-weight: bold;
+  text-align:center;
+  margin:0;
+}
+.card::before {
+  content: attr(label); /* 表示したい文字 */
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 15px;
+  color: rgba(0, 0, 0); /* 透明感 */
+  pointer-events: none; /* クリック無効 */
+  white-space: nowrap;
+}
+.dragging {  /* ドラッグ中のカード (幽体離脱された側) */
+  opacity: 0.3;
+}
+.drag-preview {  /* ドラッグ中のカード (幽体離脱した側) (スマートフォン用) */
+  position: fixed;
+  pointer-events: none;
+  z-index: 1000;
+  opacity: 0.7;
+  display: none;
+  transform: translate(-50%, -50%);
+}
+.box::before {
+  content: attr(label); /* 表示したい文字 */
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 20px;
+  color: rgba(0, 0, 0, 0.3); /* 透明感 */
+  pointer-events: none; /* クリック無効 */
+  white-space: nowrap;
+}
+</style>
+</head>
+<body>
+
+  <table class="container">
+    <tr>
+      <td></td>
+      <td></td>
+      <td class="box" label="A"></td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td></td>
+      <td></td>
+      <td class="box"></td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td></td>
+      <td></td>
+      <td class="box"></td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td></td>
+      <td></td>
+      <td class="box"></td>
+      <td></td>
+      <td></td>
+      <td class="box" label="B"></td>
+    </tr>
+    <tr>
+      <td class="box box_f" id="b1"></td>
+      <td class="box box_f" id="b2" label="C"></td>
+      <td class="box box_f" id="b3"></td>
+      <td class="box box_f" id="b4"></td>
+      <td class="box box_f" id="b5"></td>
+      <td class="box box_f" id="b6"></td>
+    </tr>
+    <tr>
+      <td></td>
+      <td class="box"></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td class="box"></td>
+    </tr>
+    <tr>
+      <td></td>
+      <td class="box"></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td class="box"></td>
+    </tr>
+  </table>
+  <table class="container">
+    <tr>
+      <td class="box">
+        <div class="card" draggable="true" id="s1" label="じ"></div>
+      </td>
+      <td class="box">
+        <div class="card" draggable="true" id="s2" label="こ"></div>
+      </td>
+      <td class="box">
+        <div class="card" draggable="true" id="s3" label="か"></div>
+      </td>
+      <td class="box">
+        <div class="card" draggable="true" id="s4" label="ゃ"></div>
+      </td>
+      <td class="box">
+        <div class="card" draggable="true" id="s5" label="く"></div>
+      </td>
+      <td class="box">
+        <div class="card" draggable="true" id="s6" label="ご"></div>
+      </td>
+      <td class="box">
+        <div class="card" draggable="true" id="s7" label="は"></div>
+      </td>
+    </tr>
+    <tr>
+      <td class="box">
+        <div class="card" draggable="true" id="s8" label="ん"></div>
+      </td>
+      <td class="box">
+        <div class="card" draggable="true" id="s9" label="よ"></div>
+      </td>
+      <td class="box">
+        <div class="card" draggable="true" id="s10" label="こ"></div>
+      </td>
+      <td class="box">
+        <div class="card" draggable="true" id="s11" label="ぎ"></div>
+      </td>
+      <td class="box">
+        <div class="card" draggable="true" id="s12" label="う"></div>
+      </td>
+      <td class="box">
+        <div class="card" draggable="true" id="s13" label="ろ"></div>
+      </td>
+      <td class="box">
+        <div class="card" draggable="true" id="s14" label="ほ"></div>
+      </td>
+      <td class="box">
+        <div class="card" draggable="true" id="s15" label="ょ"></div>
+      </td>
+    </tr>
+  </table>
+  <p>v0.1</p>
+  <p>遊び方:文字をマスにドラッグアンドドロップして最後にcheckボタンを押してください</p>
+  <button id="check">check</button>
+  <p id="result"></p>
+  <h1>これからやる事を告げるカード</h1>
+  <p>A:国や主君や世間などにそむいて逆らう事</p>
+  <p>B:学校で授業が終わった後の時間</p>
+  <p>C:人の精神や内面</p>
+
+  <p>参考：【HTML】要素を置き場から置き場にドラッグ＆ドロップする (PC+スマートフォン両対応)<br>
+  https://qiita.com/CookieBox26/items/15cf863ddba02701aa6f</p>
+
+<script type="text/javascript"><!--
+// ----- パソコン・スマートフォン共通 -----
+let draggedCard = null; // ドラッグ中のカード
+function isDroppableBox(element) {  // その要素はカードを置けるボックスか
+  if (!element || !element.classList.contains("box")) return false;  // ボックスでないとだめ
+  if (element.classList.contains("card")) return false;  // カードであったらだめ
+  if (element.childElementCount > 0) return false;  // 先客のカードがいたらだめ
+  return true;
+}
+
+// ----- パソコンでのドラッグドロップ用 -----
+const handleDragCardStart = (e) => {
+  // カードをドラッグ開始したときのイベント
+  e.target.classList.add("dragging");
+  draggedCard = e.target;
+};
+const handleDragCardEnd = (e) => {
+  // カードをドラッグ終了したときのイベント
+  e.target.classList.remove("dragging");
+  draggedCard = null;
+};
+// カードたちにイベントを登録
+document.querySelectorAll(".card").forEach(card => {
+  card.addEventListener("dragstart", handleDragCardStart, false);
+  card.addEventListener("dragend", handleDragCardEnd, false);
+});
+
+const handleDragEnter = (e) => {
+  // 要素の上に何かがドラッグされてきたときのイベント
+  if (draggedCard == null) return;  // ドラッグされてきたのがカードでないなら何もしない
+  // ドラッグされてきたのがカードであってそこがカードを置けるボックスなら知らせるため目立たせる
+  if (isDroppableBox(e.target)) e.target.classList.add("box-over");
+};
+const handleDragOver = (e) => {
+  // 要素の上に何かがドラッグされているときのイベント
+  e.preventDefault();  // ブラウザ既定の処理を禁止
+  if (draggedCard == null) {  // ドラッグされてきたのがカードでないなら禁止カーソルにする
+    e.dataTransfer.dropEffect = "none";
+    return;
+  }
+  // そこがカードを置けるボックスでないなら禁止カーソルにする
+  e.dataTransfer.dropEffect = isDroppableBox(e.target) ? "move" : "none";
+  // 但しそこがドラッグ中のカード自身や元々いたボックス上空なら便宜上移動可能カーソルにする
+  // ドラッグし始めていきなり禁止マークが出るとインタフェースとして微妙なため
+  if (e.target == draggedCard) e.dataTransfer.dropEffect = "move";
+  if (e.target == draggedCard.parentElement) e.dataTransfer.dropEffect = "move";
+};
+const handleDragLeave = (e) => {
+  // 要素の上から何かが去っていったときのイベント
+  e.target.classList.remove("box-over");  // もし目立たせていたら目立たなくする
+};
+const handleDrop = (e) => {
+  // 要素の上でカードが手放されたときのイベント
+  e.preventDefault();  // ブラウザ既定の処理を禁止
+  e.target.classList.remove("box-over");  // もし目立たせていたら目立たなくする
+  // ドラッグされてきたのがカードであってそこがカードを置けるボックスならそこにカードを追加
+  if (draggedCard && isDroppableBox(e.target)) e.target.appendChild(draggedCard);
+};
+// ページ上に何かがドラッグされてきた/いる/去る/落とされるイベントを登録
+document.addEventListener("dragenter", handleDragEnter, false);
+document.addEventListener("dragover", handleDragOver, false);
+document.addEventListener("dragleave", handleDragLeave, false);
+document.addEventListener("drop", handleDrop, false);
+
+// ----- スマートフォンでのドラッグドロップ用 -----
+let dragPreview = null; // 指に追従させるカード
+const handleTouchStart = (e) => {
+  // 画面にタッチしたときのイベント
+  const target = e.target;
+  if (!target.classList.contains("card")) return;
+  draggedCard = target;
+  draggedCard.classList.add("dragging");
+  // 指に追従させるカードを作成
+  dragPreview = draggedCard.cloneNode(true);
+  dragPreview.classList.add("drag-preview");
+  document.body.appendChild(dragPreview);
+};
+const handleTouchMove = (e) => {
+  // 画面にタッチしている指を動かしたときのイベント
+  if (draggedCard == null) return;
+  e.preventDefault();  // ブラウザ既定の処理を禁止
+  const touch = e.touches[0];  // 最初のタッチポイント
+  // 指に追従させるカードを指に追従させる
+  dragPreview.style.left = `${touch.clientX}px`;
+  dragPreview.style.top = `${touch.clientY}px`;
+  dragPreview.style.display = "block";
+  // 全ボックスの box-over クラスを除去し改めて指の下にあるボックスだけに box-over クラスを付与
+  document.querySelectorAll(".box").forEach(box => {box.classList.remove("box-over");});
+  const element = document.elementFromPoint(touch.clientX, touch.clientY);
+  if (isDroppableBox(element)) element.classList.add("box-over");
+};
+const handleTouchEnd = (e) => {
+  // 画面にタッチしている指を放したときのイベント
+  e.preventDefault();  // ブラウザ既定の処理を禁止
+  if (draggedCard == null) return;
+  const touch = e.changedTouches[0];  // タッチ終了位置
+  const element = document.elementFromPoint(touch.clientX, touch.clientY);
+  if (isDroppableBox(element)) element.appendChild(draggedCard);
+  // ドラッグ中のカードと指に追従させるカードをリセット
+  draggedCard.classList.remove("dragging");
+  document.querySelectorAll(".box").forEach(box => {box.classList.remove("box-over");});
+  draggedCard = null;
+  if (dragPreview) dragPreview.remove();
+  dragPreview = null;
+};
+if ("ontouchstart" in window) {
+  // スマートフォンであったらページにタッチイベントを登録
+  document.addEventListener("touchstart", handleTouchStart, { passive: false });
+  document.addEventListener("touchmove", handleTouchMove, { passive: false });
+  document.addEventListener("touchend", handleTouchEnd, false);
+}
+
+const check_button = document.getElementById('check');
+
+function check(){
+  if(s9.parentNode.id == "b1" && (s2.parentNode.id == "b2" || s10.parentNode.id == "b2") &&
+    s5.parentNode.id == "b3" && s1.parentNode.id == "b4" && s15.parentNode.id == "b5" &&
+    s12.parentNode.id == "b6"){
+      result.innerHTML="正解！";
+    }
+}
+
+// スマホ対応: タッチイベントとクリックイベントを両方設定
+check_button.addEventListener('touchstart', function(event) {
+  check();
+}, false);
+
+check_button.addEventListener('click', function(event) {
+  check();
+}, false);
+// --></script>
+</body>
+</html>
