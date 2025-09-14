@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>非公式ペルソナ5 9周年 大クロスワード</title>
+<style type="text/css">
+
+html, body {  /* スマートフォンでの画面外スクロール禁止用 */
+  margin:0 0 50px;
+  width:100%;
+}
+.container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0px;
+  margin:10px 0 30px;
+  justify-content: center;
+}
+.box {  /* カードを置くボックス */
+  width: 23px;
+  height: 23px;
+  padding: 0;
+  border: 2px solid #333;
+  position: relative;
+  text-align:center;
+  margin:0;
+  background-color:#fff;
+}
+.box_f{
+  background-color:#74bffc;
+}
+.box-over {  /* ボックス上にカードがドラッグされてきたらボックスをやや白くする */
+  background: rgba(255, 255, 255, 0.3);
+}
+.card {  /* カード */
+  width: 23px;
+  height: 23px;
+  background-color:#eee;
+  cursor: grab;
+  font-weight: bold;
+  text-align:center;
+  margin:0;
+}
+.card::before {
+  content: attr(label); /* 表示したい文字 */
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 15px;
+  color: rgba(0, 0, 0); /* 透明感 */
+  pointer-events: none; /* クリック無効 */
+  white-space: nowrap;
+}
+
+@media screen and (min-width: 960px) {
+  .box {  /* カードを置くボックス */
+    width: 40px;
+    height: 40px;
+  }
+  .card {  /* カード */
+    width: 40px;
+    height: 40px;
+  }
+  .card::before {
+    font-size: 20px;
+  }
+}
+
+.dragging {  /* ドラッグ中のカード (幽体離脱された側) */
+  opacity: 0.3;
+}
+.drag-preview {  /* ドラッグ中のカード (幽体離脱した側) (スマートフォン用) */
+  position: fixed;
+  pointer-events: none;
+  z-index: 1000;
+  opacity: 0.7;
+  display: none;
+  transform: translate(-50%, -50%);
+}
+.box::before {
+  content: attr(label); /* 表示したい文字 */
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 20px;
+  color: rgba(0, 0, 0, 0.3); /* 透明感 */
+  pointer-events: none; /* クリック無効 */
+  white-space: nowrap;
+}
+h1,h2,p{
+  word-break:break-all;
+}
+#info{
+  text-align: center;
+  user-select: none;
+  margin:0 auto;
+  width:80%;
+}
+#result{
+  color:red;
+  font-size: 30px;
+  font-weight: bold;
+}
+</style>
+</head>
+<body>
+
+  <table class="container">
+    <tr>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td class="box" label="A"></td>
+      <td class="box"></td>
+      <td class="box"></td>
+      <td class="box"></td>
+      <td class="box"></td>
+      <td class="box"></td>
+    </tr>
+    <tr>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td class="box"></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td class="box" label="B"></td>
+      <td class="box"></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td class="box"></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td class="box" label="C"></td>
+      <td class="box"></td>
+      <td class="box"></td>
+      <td class="box" label="D"></td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td class="box" label="E"></td>
+      <td class="box" label="F"></td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td class="box" label="G"></td>
+      <td class="box"></td>
+      <td class="box"></td>
+      <td class="box"></td>
+      <td></td>
+      <td></td>
+      <td class="box" label="H"></td>
+      <td class="box" label="I"></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td></td>
+      <td></td>
+      <td class="box" label="J"></td>
+      <td class="box"></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td class="box" label="K"></td>
+      <td></td>
+      <td></td>
+      <td class="box"></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td></td>
+      <td></td>
+      <td class="box"></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td class="box"></td>
+      <td></td>
+      <td></td>
+      <td class="box"></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td></td>
+      <td></td>
+      <td class="box"></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td class="box" label="L"></td>
+      <td class="box"></td>
+      <td></td>
+      <td></td>
+      <td class="box"></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td></td>
+      <td class="box box_f" id="b1" label="M"></td>
+      <td class="box box_f" id="b2"></td>
+      <td class="box box_f" id="b3"></td>
+      <td class="box box_f" id="b4"></td>
+      <td class="box box_f" id="b5"></td>
+      <td class="box box_f" id="b6"></td>
+      <td></td>
+      <td></td>
+      <td class="box" label="N"></td>
+      <td class="box"></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td></td>
+      <td class="box"></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td class="box" label="O"></td>
+      <td class="box"></td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td></td>
+      <td class="box"></td>
+      <td></td>
+      <td class="box" label="P"></td>
+      <td class="box"></td>
+      <td class="box"></td>
+      <td class="box"></td>
+      <td class="box"></td>
+      <td class="box"></td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td class="box" label="Q"></td>
+      <td class="box" label="R"></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+
+    </tr>
+    <tr>
+      <td class="box"></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td class="box"></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+  </table>
+  <table class="container">
+    <tr>
+      <td class="box"><div class="card" draggable="true" id="s1" label="	げ	"></div></td>
+      <td class="box"><div class="card" draggable="true" id="s2" label="	す	"></div></td>
+      <td class="box"><div class="card" draggable="true" id="s3" label="	ー	"></div></td>
+      <td class="box"><div class="card" draggable="true" id="s4" label="	こ	"></div></td>
+      <td class="box"><div class="card" draggable="true" id="s5" label="	か	"></div></td>
+      <td class="box"><div class="card" draggable="true" id="s6" label="	っ	"></div></td>
+      <td class="box"><div class="card" draggable="true" id="s7" label="	つ	"></div></td>
+      <td class="box"><div class="card" draggable="true" id="s8" label="	か	"></div></td>
+      <td class="box"><div class="card" draggable="true" id="s9" label="	で	"></div></td>
+      <td class="box"><div class="card" draggable="true" id="s10" label="	い	"></div></td>
+      <td class="box"><div class="card" draggable="true" id="s11" label="	ほ	"></div></td>
+      <td class="box"><div class="card" draggable="true" id="s12" label="	び	"></div></td>
+    </tr>
+    <tr>
+      <td class="box"><div class="card" draggable="true" id="s13" label="	か	"></div></td>
+      <td class="box"><div class="card" draggable="true" id="s14" label="	と	"></div></td>
+      <td class="box"><div class="card" draggable="true" id="s15" label="	い	"></div></td>
+      <td class="box"><div class="card" draggable="true" id="s16" label="	ろ	"></div></td>
+      <td class="box"><div class="card" draggable="true" id="s17" label="	あ	"></div></td>
+      <td class="box"><div class="card" draggable="true" id="s18" label="	ば	"></div></td>
+      <td class="box"><div class="card" draggable="true" id="s19" label="	く	"></div></td>
+      <td class="box"><div class="card" draggable="true" id="s20" label="	か	"></div></td>
+      <td class="box"><div class="card" draggable="true" id="s21" label="	か	"></div></td>
+      <td class="box"><div class="card" draggable="true" id="s22" label="	こ	"></div></td>
+      <td class="box"><div class="card" draggable="true" id="s23" label="	ん	"></div></td>
+      <td class="box"><div class="card" draggable="true" id="s24" label="	こ	"></div></td>
+    </tr>
+    <tr>
+      <td class="box"><div class="card" draggable="true" id="s25" label="	ゅ	"></div></td>
+      <td class="box"><div class="card" draggable="true" id="s26" label="	す	"></div></td>
+      <td class="box"><div class="card" draggable="true" id="s27" label="	う	"></div></td>
+      <td class="box"><div class="card" draggable="true" id="s28" label="	い	"></div></td>
+      <td class="box"><div class="card" draggable="true" id="s29" label="	き	"></div></td>
+      <td class="box"><div class="card" draggable="true" id="s30" label="	ぇ	"></div></td>
+      <td class="box"><div class="card" draggable="true" id="s31" label="	い	"></div></td>
+      <td class="box"><div class="card" draggable="true" id="s32" label="	ん	"></div></td>
+      <td class="box"><div class="card" draggable="true" id="s33" label="	ご	"></div></td>
+      <td class="box"><div class="card" draggable="true" id="s34" label="	ょ	"></div></td>
+      <td class="box"><div class="card" draggable="true" id="s35" label="	あ	"></div></td>
+      <td class="box"><div class="card" draggable="true" id="s36" label="	し	"></div></td>
+    </tr>
+    <tr>
+      <td class="box"><div class="card" draggable="true" id="s37" label="	ら	"></div></td>
+      <td class="box"><div class="card" draggable="true" id="s38" label="	う	"></div></td>
+      <td class="box"><div class="card" draggable="true" id="s39" label="	そ	"></div></td>
+      <td class="box"><div class="card" draggable="true" id="s40" label="	ら	"></div></td>
+      <td class="box"><div class="card" draggable="true" id="s41" label="	じ	"></div></td>
+      <td class="box"><div class="card" draggable="true" id="s42" label="	が	"></div></td>
+      <td class="box"><div class="card" draggable="true" id="s43" label="	く	"></div></td>
+      <td class="box"><div class="card" draggable="true" id="s44" label="	ご	"></div></td>
+      <td class="box"><div class="card" draggable="true" id="s45" label="	さ	"></div></td>
+      <td class="box"><div class="card" draggable="true" id="s46" label="	う	"></div></td>
+      <td class="box"><div class="card" draggable="true" id="s47" label="	ぶ	"></div></td>
+      <td class="box"><div class="card" draggable="true" id="s48" label="	い	"></div></td>
+    </tr>
+    <tr>
+      <td class="box"><div class="card" draggable="true" id="s49" label="	い	"></div></td>
+      <td class="box"><div class="card" draggable="true" id="s50" label="	れ	"></div></td>
+      <td class="box"><div class="card" draggable="true" id="s51" label="	う	"></div></td>
+      <td class="box"><div class="card" draggable="true" id="s52" label="	と	"></div></td>
+      <td class="box"><div class="card" draggable="true" id="s53" label="	わ	"></div></td>
+      <td class="box"><div class="card" draggable="true" id="s54" label="	た	"></div></td>
+      <td class="box"><div class="card" draggable="true" id="s55" label="	か	"></div></td>
+    </tr>
+  </table>
+
+<div id="info">
+  <button id="lock">画面ロック：OFF</button>
+  <p>v0.2</p>
+  <p>遊び方:文字をマスにドラッグアンドドロップして青いマスを埋め、最後にcheckボタンを押してください</p>
+  <p>ページをリロードすると最初からになってしまいます。ご注意ください</p>
+  <p>ドラッグアンドドロップ時に画面が動いちゃうなら画面ロックを使ってください</p>
+  <button id="check">check</button>
+  <p id="result"></p>
+  <h1>問題：「欧風だったり、和風だったり・・・」</h1>
+  <h2>Aヨコ</h2>
+  <p>インターネット上にある複数のページの集合体</p>
+
+  <h2>Aタテ</h2>
+  <p>美味しいご飯や飲み物がふるまわれるパーティ。さかもり</p>
+
+  <h2>Bヨコ</h2>
+  <p>光の反対側にできるもの。シャドウを日本語で</p>
+
+  <h2>Bタテ</h2>
+  <p>絵のこと。物体の形象を平面に描き出したもの</p>
+
+  <h2>Cヨコ</h2>
+  <p>学びや。教育を目的とした施設</p>
+
+  <h2>Dタテ</h2>
+  <p>真実の逆。人を騙すためにつくもの</p>
+
+  <h2>Eヨコ</h2>
+  <p>同名の穀物を引いて作っためん類。「中華〇〇」＝ラーメンのこと</p>
+
+  <h2>Fタテ</h2>
+  <p>決まったルートで客を乗せて走る自動車の交通機関。某作品で猫が変化すると言われるもの</p>
+
+  <h2>Gヨコ</h2>
+  <p>授業が終わった後の時間</p>
+
+  <h2>Gタテ</h2>
+  <p>夜に空に見える天体。希望の象徴。</p>
+
+  <h2>Hヨコ</h2>
+  <p>意中の相手に対する感情。あるいは物と物の狭い間。あるいは気が抜けた様子</p>
+
+  <h2>Iタテ</h2>
+  <p>宗教の団体あるいは礼拝や儀式をするための施設</p>
+
+  <h2>Jヨコ</h2>
+  <p>人が集まり経済や文化の中心になっている所</p>
+
+  <h2>Jタテ</h2>
+  <p>身体や精神などが拘束されてしまっている状態</p>
+
+  <h2>Kタテ</h2>
+  <p>精神や内面。感情や意志などの原動力になっていると考えられているもの</p>
+
+  <h2>Lヨコ</h2>
+  <p>赤や青などの概念の総称。光の波長の違いによって目が感じる情報</p>
+
+  <h2>Lタテ</h2>
+  <p>座ったりこしかけるための家具</p>
+
+  <h2>Mタテ</h2>
+  <p>罪人を幽閉する空間が無数にある施設</p>
+
+  <h2>Nヨコ</h2>
+  <p>好きな人や物に対する感情。大切にしたいと思う気持ち。</p>
+
+  <h2>Nタテ</h2>
+  <p>善の反対。不道徳やルールに反すること</p>
+
+  <h2>Oヨコ</h2>
+  <p>地位や身分。あるいは物の中心にあるもの</p>
+
+  <h2>Oタテ</h2>
+  <p>炭酸飲料などが入っているアルミ製の容器</p>
+
+  <h2>Pヨコ</h2>
+  <p>彫刻や絵などを収集・展示し鑑賞あるいは研究する施設</p>
+
+  <h2>Qヨコ</h2>
+  <p>木で作った人形。役に立たない人をさす悪口。</p>
+
+  <h2>Qタテ</h2>
+  <p>人と人が巡り合うこと。</p>
+</div>
+
+<script type="text/javascript"><!--
+// ----- パソコン・スマートフォン共通 -----
+let draggedCard = null; // ドラッグ中のカード
+function isDroppableBox(element) {  // その要素はカードを置けるボックスか
+  if (!element || !element.classList.contains("box")) return false;  // ボックスでないとだめ
+  if (element.classList.contains("card")) return false;  // カードであったらだめ
+  if (element.childElementCount > 0) return false;  // 先客のカードがいたらだめ
+  return true;
+}
+
+// ----- パソコンでのドラッグドロップ用 -----
+const handleDragCardStart = (e) => {
+  // カードをドラッグ開始したときのイベント
+  e.target.classList.add("dragging");
+  draggedCard = e.target;
+};
+const handleDragCardEnd = (e) => {
+  // カードをドラッグ終了したときのイベント
+  e.target.classList.remove("dragging");
+  draggedCard = null;
+};
+// カードたちにイベントを登録
+document.querySelectorAll(".card").forEach(card => {
+  card.addEventListener("dragstart", handleDragCardStart, false);
+  card.addEventListener("dragend", handleDragCardEnd, false);
+});
+
+const handleDragEnter = (e) => {
+  // 要素の上に何かがドラッグされてきたときのイベント
+  if (draggedCard == null) return;  // ドラッグされてきたのがカードでないなら何もしない
+  // ドラッグされてきたのがカードであってそこがカードを置けるボックスなら知らせるため目立たせる
+  if (isDroppableBox(e.target)) e.target.classList.add("box-over");
+};
+const handleDragOver = (e) => {
+  // 要素の上に何かがドラッグされているときのイベント
+  e.preventDefault();  // ブラウザ既定の処理を禁止
+  if (draggedCard == null) {  // ドラッグされてきたのがカードでないなら禁止カーソルにする
+    e.dataTransfer.dropEffect = "none";
+    return;
+  }
+  // そこがカードを置けるボックスでないなら禁止カーソルにする
+  e.dataTransfer.dropEffect = isDroppableBox(e.target) ? "move" : "none";
+  // 但しそこがドラッグ中のカード自身や元々いたボックス上空なら便宜上移動可能カーソルにする
+  // ドラッグし始めていきなり禁止マークが出るとインタフェースとして微妙なため
+  if (e.target == draggedCard) e.dataTransfer.dropEffect = "move";
+  if (e.target == draggedCard.parentElement) e.dataTransfer.dropEffect = "move";
+};
+const handleDragLeave = (e) => {
+  // 要素の上から何かが去っていったときのイベント
+  e.target.classList.remove("box-over");  // もし目立たせていたら目立たなくする
+};
+const handleDrop = (e) => {
+  // 要素の上でカードが手放されたときのイベント
+  e.preventDefault();  // ブラウザ既定の処理を禁止
+  e.target.classList.remove("box-over");  // もし目立たせていたら目立たなくする
+  // ドラッグされてきたのがカードであってそこがカードを置けるボックスならそこにカードを追加
+  if (draggedCard && isDroppableBox(e.target)) e.target.appendChild(draggedCard);
+};
+// ページ上に何かがドラッグされてきた/いる/去る/落とされるイベントを登録
+document.addEventListener("dragenter", handleDragEnter, false);
+document.addEventListener("dragover", handleDragOver, false);
+document.addEventListener("dragleave", handleDragLeave, false);
+document.addEventListener("drop", handleDrop, false);
+
+// ----- スマートフォンでのドラッグドロップ用 -----
+let dragPreview = null; // 指に追従させるカード
+const handleTouchStart = (e) => {
+  // 画面にタッチしたときのイベント
+  const target = e.target;
+  if (!target.classList.contains("card")) return;
+  draggedCard = target;
+  draggedCard.classList.add("dragging");
+  // 指に追従させるカードを作成
+  dragPreview = draggedCard.cloneNode(true);
+  dragPreview.classList.add("drag-preview");
+  document.body.appendChild(dragPreview);
+};
+const handleTouchMove = (e) => {
+  // 画面にタッチしている指を動かしたときのイベント
+  if (draggedCard == null) return;
+  e.preventDefault();  // ブラウザ既定の処理を禁止
+  const touch = e.touches[0];  // 最初のタッチポイント
+  // 指に追従させるカードを指に追従させる
+  dragPreview.style.left = `${touch.clientX}px`;
+  dragPreview.style.top = `${touch.clientY}px`;
+  dragPreview.style.display = "block";
+  // 全ボックスの box-over クラスを除去し改めて指の下にあるボックスだけに box-over クラスを付与
+  document.querySelectorAll(".box").forEach(box => {box.classList.remove("box-over");});
+  const element = document.elementFromPoint(touch.clientX, touch.clientY);
+  if (isDroppableBox(element)) element.classList.add("box-over");
+};
+const handleTouchEnd = (e) => {
+  // 画面にタッチしている指を放したときのイベント
+  e.preventDefault();  // ブラウザ既定の処理を禁止
+  if (draggedCard == null) return;
+  const touch = e.changedTouches[0];  // タッチ終了位置
+  const element = document.elementFromPoint(touch.clientX, touch.clientY);
+  if (isDroppableBox(element)) element.appendChild(draggedCard);
+  // ドラッグ中のカードと指に追従させるカードをリセット
+  draggedCard.classList.remove("dragging");
+  document.querySelectorAll(".box").forEach(box => {box.classList.remove("box-over");});
+  draggedCard = null;
+  if (dragPreview) dragPreview.remove();
+  dragPreview = null;
+};
+if ("ontouchstart" in window) {
+  // スマートフォンであったらページにタッチイベントを登録
+  document.addEventListener("touchstart", handleTouchStart, { passive: false });
+  document.addEventListener("touchmove", handleTouchMove, { passive: false });
+  document.addEventListener("touchend", handleTouchEnd, false);
+}
+
+let body_lock = false;
+const lock = document.getElementById('lock');
+const e_html = document.getElementsByTagName('html');
+const e_body = document.getElementsByTagName('body');
+
+function toggle_lock(){
+  if(!body_lock){
+    lock.innerHTML="画面ロック：ON";
+    e_html[0].style.overflow = 'hidden';
+    e_body[0].style.overflow = 'hidden';
+    body_lock = true;
+  }else{
+    lock.innerHTML="画面ロック：OFF";
+    e_html[0].style.overflow = 'auto';
+    e_body[0].style.overflow = 'auto';
+    body_lock = false;
+  }
+}
+
+lock.addEventListener('touchstart', function(e){
+  toggle_lock();
+}, false);
+
+lock.addEventListener('click', function(e){
+  toggle_lock();
+}, false);
+
+const check_button = document.getElementById('check');
+
+function check(){
+  if((s5.parentNode.id == "b1"||s8.parentNode.id == "b1"||s13.parentNode.id == "b1"||s20.parentNode.id == "b1"||s21.parentNode.id == "b1"||s55.parentNode.id == "b1")&& //か
+  s50.parentNode.id == "b2"&& //れ
+  s3.parentNode.id == "b3"&& //ー
+  (s37.parentNode.id == "b4"||s40.parentNode.id == "b4")&& //ら
+  (s10.parentNode.id == "b5"||s15.parentNode.id == "b5"||s28.parentNode.id == "b5"||s31.parentNode.id == "b5"||s48.parentNode.id == "b5"||s49.parentNode.id == "b5")&& //い
+  (s2.parentNode.id == "b6"||s26.parentNode.id == "b6")){ //す
+    result.innerHTML="☆☆　正解！　☆☆";
+  }else{
+    result.innerHTML="不正解";
+  }
+}
+
+// スマホ対応: タッチイベントとクリックイベントを両方設定
+check_button.addEventListener('touchstart', function(event) {
+  check();
+}, false);
+
+check_button.addEventListener('click', function(event) {
+  check();
+}, false);
+// --></script>
+</body>
+</html>
