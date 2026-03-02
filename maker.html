@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>クロスワード生成サイト</title>
+<style>
+body{
+  font-family:sans-serif;
+  text-align:center;
+}
+.main{
+  margin:0 auto;
+  width:400px;
+}
+.grid{
+  display:grid;
+  grid-template-columns:repeat(10,35px);
+  gap:2px;
+  justify-content:center;
+  margin-bottom:20px;
+}
+.grid input{
+  width:35px;height:35px;
+  text-align:center;font-size:18px;
+  border:1px solid #aaa;
+}
+.final{
+  background-color:#74bffc;
+}
+button{
+  padding:10px 20px;
+  margin-top:10px;
+}
+.wordLabel{
+  display:block;
+  font-weight:bold;
+  margin:0 auto;
+}
+.questionRow input{
+  display:block;
+  margin:0 auto;
+  width:400px;
+}
+.container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0px;
+  margin:10px 0 30px;
+  justify-content: center;
+}
+.box {  /* カードを置くボックス */
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 2px solid #333;
+  position: relative;
+  text-align:center;
+  margin:0;
+  background-color:#fff;
+}
+.box_f{
+  background-color:#74bffc;
+}
+.box-over {  /* ボックス上にカードがドラッグされてきたらボックスをやや白くする */
+  background: rgba(255, 255, 255, 0.3);
+}
+.card {  /* カード */
+  width: 30px;
+  height: 30px;
+  background-color:#eee;
+  cursor: grab;
+  font-weight: bold;
+  text-align:center;
+  margin:0;
+}
+.card::before {
+  content: attr(label); /* 表示したい文字 */
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 15px;
+  color: rgba(0, 0, 0); /* 透明感 */
+  pointer-events: none; /* クリック無効 */
+  white-space: nowrap;
+}
+.dragging {  /* ドラッグ中のカード (幽体離脱された側) */
+  opacity: 0.3;
+}
+.drag-preview {  /* ドラッグ中のカード (幽体離脱した側) (スマートフォン用) */
+  position: fixed;
+  pointer-events: none;
+  z-index: 1000;
+  opacity: 0.7;
+  display: none;
+  transform: translate(-50%, -50%);
+}
+.box::before {
+  content: attr(label); /* 表示したい文字 */
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 20px;
+  color: rgba(0, 0, 0, 0.3); /* 透明感 */
+  pointer-events: none; /* クリック無効 */
+  white-space: nowrap;
+}
+#questionArea2{
+  margin-bottom: 30px;
+}
+textarea{
+  width:400px;
+  height:400px;
+  margin:0 auto;
+}
+#final_code{
+  position: relative;
+}
+#final_code button{
+  position: absolute;
+  top:10px;
+  right:10px;
+  padding:2px;
+}
+@media (max-width : 400px) {
+  .main{
+    width:100%;
+  }
+  .questionRow input,
+  textarea{
+    width:95%;
+  }
+}
+</style>
+
+</head>
+<body>
+<div class="main">
+  <h2>クロスワード生成</h2>
+  <p>マスをクリックで「最終ワード」切り替え</p>
+
+  <div class="grid" id="grid"></div>
+  <button id="questionBtn">問題文生成</button>
+
+  <div id="questions">
+  <h3>問題文</h3>
+  <div id="questionArea"></div>
+  </div>
+
+  <button id="preview">プレビュー</button>
+  <div id="result"></div>
+  <div id="questionArea2"></div>
+
+  <details id="final_code">
+    <summary>HTML</summary>
+    <button id="copy">コピー</button>
+    <textarea id="output">
+    </textarea>
+  </details>
+</div>
+<script>
+
+
+const grid=document.getElementById("grid");
+const size=10;
+
+
+// ===== 10x10生成 =====
+for(let i=0;i<100;i++){
+  const input=document.createElement("input");
+  input.maxLength=1;
+  input.addEventListener("click",()=>input.classList.toggle("final"));
+  grid.appendChild(input);
+}
+
+// ===== 盤面取得 =====
+function getBoard(){
+  const inputs=document.querySelectorAll(".grid input");
+  let board=[];
+  for(let r=0;r<size;r++){
+    let row=[];
+    for(let c=0;c<size;c++){
+      row.push(inputs[r*size+c].value.trim());
+    }
+    board.push(row);
+  }
+  return board;
+}
+
+// ===== ワード解析 =====
+function analyzeWords(){
+  const board=getBoard();
+  let yoko=[],tate=[];
+
+  // ヨコ
+  for(let r=0;r<size;r++){
+    for(let c=0;c<size;c++){
+      if(
+        board[r][c]!=="" &&
+        (c===0 || board[r][c-1]==="") &&
+        (c+1<size && board[r][c+1]!=="")
+      ){
+        let word="",cc=c;
+        while(cc<size && board[r][cc]!==""){
+          word+=board[r][cc]; cc++;
+        }
+        yoko.push({r,c,word});
+      }
+    }
+  }
+
+  // タテ
+  for(let r=0;r<size;r++){
+    for(let c=0;c<size;c++){
+      if(
+        board[r][c]!=="" &&
+        (r===0 || board[r-1][c]==="") &&
+        (r+1<size && board[r+1][c]!=="")
+      ){
+        let word="",rr=r;
+        while(rr<size && board[rr][c]!==""){
+          word+=board[rr][c]; rr++;
+        }
+        tate.push({r,c,word});
+      }
+    }
+  }
+
+  return {yoko,tate};
+}
+
+//////////////////////////////////////////////////
+// 問題文ボタン
+//////////////////////////////////////////////////
+
+document.getElementById("questionBtn").addEventListener("click",()=>{
+  document.getElementById("questions").style.display = 'block';
+
+  const {yoko,tate}=analyzeWords();
+  const area=document.getElementById("questionArea");
+  area.innerHTML="";
+
+  let html="<h3>ヨコ</h3>";
+
+  num =0;
+
+  yoko.forEach((w,i)=>{
+    html+=`
+      <div class="questionRow yoko" data-label="${String.fromCharCode(65+num)}">
+        <span class="wordLabel">${w.word}</span>
+        <input type="text">
+      </div>`;
+    num++;
+  });
+
+  html+="<h3>タテ</h3>";
+
+  tate.forEach((w,i)=>{
+    html+=`
+      <div class="questionRow tate" data-label="${String.fromCharCode(65+num)}">
+        <span class="wordLabel">${w.word}</span>
+        <input type="text">
+      </div>`;
+    num++;
+  });
+  area.innerHTML=html;
+  document.getElementById("preview").style.display = 'inline';
+});
+
+//////////////////////////////////////////////////
+// 生成ボタン
+//////////////////////////////////////////////////
+
+document.getElementById("preview").addEventListener("click",()=>{
+  document.getElementById("final_code").style.display = 'block';
+
+  const inputs=document.querySelectorAll(".grid input");
+  const {yoko,tate}=analyzeWords();
+
+  // 既存label削除
+  inputs.forEach(i=>i.removeAttribute("label"));
+
+  let charCode=65;
+
+  // ヨコlabel付与
+  yoko.forEach(w=>{
+    const index=w.r*size+w.c;
+    const label=String.fromCharCode(charCode++);
+    inputs[index].setAttribute("label",label);
+    w.label=label;
+  });
+
+  // タテlabel付与
+  tate.forEach(w=>{
+    const index=w.r*size+w.c;
+    const label=String.fromCharCode(charCode++);
+    inputs[index].setAttribute("label",label);
+    w.label=label;
+  });
+
+  // 問題文のワードをABCに置換
+  const spans=document.querySelectorAll(".wordLabel");
+  let count=0;
+  spans.forEach(span=>{
+    if(count<yoko.length){
+      span.textContent=yoko[count].label;
+    }else{
+      span.textContent=tate[count-yoko.length].label;
+    }
+    count++;
+  });
+
+  //////////////////////////////////////////////////
+  // 以下、既存生成処理（label反映追加のみ変更）
+  //////////////////////////////////////////////////
+
+  let boardHtml="<table class='container'>\n";
+  let cardHtml="";
+  let checkConditions=[];
+  let bCount=1;
+  let sCount=1;
+
+  for(let row=0;row<10;row++){
+    boardHtml+="  <tr>\n";
+    for(let col=0;col<10;col++){
+      const input=inputs[row*10+col];
+      const val=input.value.trim();
+      const label=input.getAttribute("label");
+
+      if(val!==""){
+
+        const bId="b"+bCount++;
+        const sId="s"+sCount++;
+
+        if(input.classList.contains("final")){
+          boardHtml+=`    <td class="box box_f" id="${bId}" ${label?`label="${label}"`:""}></td>\n`;
+          checkConditions.push(`${sId}.parentNode.id == "${bId}"`);
+        }else{
+          boardHtml+=`    <td class="box" id="${bId}" ${label?`label="${label}"`:""}></td>\n`;
+        }
+
+        cardHtml+=`
+      <td class="box">
+        <div class="card" draggable="true" id="${sId}" label="${val}"></div>
+      </td>`;
+
+      }else{
+        boardHtml+=`    <td></td>\n`;
+      }
+    }
+    boardHtml+="  </tr>\n";
+  }
+
+  boardHtml+="</table>";
+
+ // カード整形
+  let formattedCard='<table class="container">\n<tr>';
+  let cells=cardHtml.split("</td>");
+  let counter=0;
+
+  cells.forEach(cell=>{
+    if(cell.trim()!==""){
+      formattedCard+=cell+"</td>";
+      counter++;
+      if(counter%8===0){
+        formattedCard+="</tr>\n<tr>";
+      }
+    }
+  });
+  formattedCard+="</tr>\n</table>";
+
+//////////////////////////////////////////////////
+// ズレない問題文HTML生成
+//////////////////////////////////////////////////
+
+let questionHtml = "<!-- 問題文 -->\n";
+
+// 問題文の各行を取得
+let rows = document.querySelectorAll("#questionArea .yoko");
+questionHtml += `<h2>ヨコ</h2>`;
+
+rows.forEach(row => {
+  // その行に保存されているlabelを取得
+  const label = row.getAttribute("data-label");
+
+  // その行のinputを取得
+  const text = row.querySelector("input").value.trim();
+
+  questionHtml += `<p>${label}:${text}</p>\n`;
+});
+
+rows = document.querySelectorAll("#questionArea .tate");
+questionHtml += `<h2>タテ</h2>`;
+rows.forEach(row => {
+
+  // その行に保存されているlabelを取得
+  const label = row.getAttribute("data-label");
+
+  // その行のinputを取得
+  const text = row.querySelector("input").value.trim();
+
+  questionHtml += `<p>${label}:${text}</p>\n`;
+
+});
+
+  document.getElementById("questionArea2").innerHTML=questionHtml;
+
+  document.getElementById("result").innerHTML = `<h3>プレビュー</h3>${boardHtml}${formattedCard}`;
+
+  document.getElementById("output").value=`
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>card 0</title>
+<style type="text/css">
+html, body {  /* スマートフォンでの画面外スクロール禁止用 */
+  overflow: hidden;
+}
+div.container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+}
+.box {  /* カードを置くボックス */
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 2px solid #333;
+  position: relative;
+  text-align:center;
+  margin:0;
+  background-color:#fff;
+}
+.box_f{
+  background-color:#74bffc;
+}
+.box-over {  /* ボックス上にカードがドラッグされてきたらボックスをやや白くする */
+  background: rgba(255, 255, 255, 0.3);
+}
+.card {  /* カード */
+  width: 30px;
+  height: 30px;
+  background-color:#eee;
+  cursor: grab;
+  font-weight: bold;
+  text-align:center;
+  margin:0;
+}
+.card::before {
+  content: attr(label); /* 表示したい文字 */
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 15px;
+  color: rgba(0, 0, 0); /* 透明感 */
+  pointer-events: none; /* クリック無効 */
+  white-space: nowrap;
+}
+.dragging {  /* ドラッグ中のカード (幽体離脱された側) */
+  opacity: 0.3;
+}
+.drag-preview {  /* ドラッグ中のカード (幽体離脱した側) (スマートフォン用) */
+  position: fixed;
+  pointer-events: none;
+  z-index: 1000;
+  opacity: 0.7;
+  display: none;
+  transform: translate(-50%, -50%);
+}
+.box::before {
+  content: attr(label); /* 表示したい文字 */
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 20px;
+  color: rgba(0, 0, 0, 0.3); /* 透明感 */
+  pointer-events: none; /* クリック無効 */
+  white-space: nowrap;
+}
+</style>
+</head>
+<body>
+
+<!-- 問題 -->
+${boardHtml}
+
+<!-- カード -->
+${formattedCard}
+
+<p>遊び方:文字をマスにドラッグアンドドロップして最後にcheckボタンを押してください</p>
+
+<!-- 問題 -->
+${questionHtml}
+<button id="check">check</button>
+<p id="result"></p>
+<script type="text/javascript"><!--
+// ----- パソコン・スマートフォン共通 -----
+let draggedCard = null; // ドラッグ中のカード
+function isDroppableBox(element) {  // その要素はカードを置けるボックスか
+  if (!element || !element.classList.contains("box")) return false;  // ボックスでないとだめ
+  if (element.classList.contains("card")) return false;  // カードであったらだめ
+  if (element.childElementCount > 0) return false;  // 先客のカードがいたらだめ
+  return true;
+}
+
+// ----- パソコンでのドラッグドロップ用 -----
+const handleDragCardStart = (e) => {
+  // カードをドラッグ開始したときのイベント
+  e.target.classList.add("dragging");
+  draggedCard = e.target;
+};
+const handleDragCardEnd = (e) => {
+  // カードをドラッグ終了したときのイベント
+  e.target.classList.remove("dragging");
+  draggedCard = null;
+};
+// カードたちにイベントを登録
+document.querySelectorAll(".card").forEach(card => {
+  card.addEventListener("dragstart", handleDragCardStart, false);
+  card.addEventListener("dragend", handleDragCardEnd, false);
+});
+
+const handleDragEnter = (e) => {
+  // 要素の上に何かがドラッグされてきたときのイベント
+  if (draggedCard == null) return;  // ドラッグされてきたのがカードでないなら何もしない
+  // ドラッグされてきたのがカードであってそこがカードを置けるボックスなら知らせるため目立たせる
+  if (isDroppableBox(e.target)) e.target.classList.add("box-over");
+};
+const handleDragOver = (e) => {
+  // 要素の上に何かがドラッグされているときのイベント
+  e.preventDefault();  // ブラウザ既定の処理を禁止
+  if (draggedCard == null) {  // ドラッグされてきたのがカードでないなら禁止カーソルにする
+    e.dataTransfer.dropEffect = "none";
+    return;
+  }
+  // そこがカードを置けるボックスでないなら禁止カーソルにする
+  e.dataTransfer.dropEffect = isDroppableBox(e.target) ? "move" : "none";
+  // 但しそこがドラッグ中のカード自身や元々いたボックス上空なら便宜上移動可能カーソルにする
+  // ドラッグし始めていきなり禁止マークが出るとインタフェースとして微妙なため
+  if (e.target == draggedCard) e.dataTransfer.dropEffect = "move";
+  if (e.target == draggedCard.parentElement) e.dataTransfer.dropEffect = "move";
+};
+const handleDragLeave = (e) => {
+  // 要素の上から何かが去っていったときのイベント
+  e.target.classList.remove("box-over");  // もし目立たせていたら目立たなくする
+};
+const handleDrop = (e) => {
+  // 要素の上でカードが手放されたときのイベント
+  e.preventDefault();  // ブラウザ既定の処理を禁止
+  e.target.classList.remove("box-over");  // もし目立たせていたら目立たなくする
+  // ドラッグされてきたのがカードであってそこがカードを置けるボックスならそこにカードを追加
+  if (draggedCard && isDroppableBox(e.target)) e.target.appendChild(draggedCard);
+};
+// ページ上に何かがドラッグされてきた/いる/去る/落とされるイベントを登録
+document.addEventListener("dragenter", handleDragEnter, false);
+document.addEventListener("dragover", handleDragOver, false);
+document.addEventListener("dragleave", handleDragLeave, false);
+document.addEventListener("drop", handleDrop, false);
+
+// ----- スマートフォンでのドラッグドロップ用 -----
+let dragPreview = null; // 指に追従させるカード
+const handleTouchStart = (e) => {
+  // 画面にタッチしたときのイベント
+  const target = e.target;
+  if (!target.classList.contains("card")) return;
+  draggedCard = target;
+  draggedCard.classList.add("dragging");
+  // 指に追従させるカードを作成
+  dragPreview = draggedCard.cloneNode(true);
+  dragPreview.classList.add("drag-preview");
+  document.body.appendChild(dragPreview);
+};
+const handleTouchMove = (e) => {
+  // 画面にタッチしている指を動かしたときのイベント
+  if (draggedCard == null) return;
+  e.preventDefault();  // ブラウザ既定の処理を禁止
+  const touch = e.touches[0];  // 最初のタッチポイント
+  // 指に追従させるカードを指に追従させる
+  dragPreview.style.left = \`\${touch.clientX}px\`;
+  dragPreview.style.top = \`\${touch.clientY}px\`;
+  dragPreview.style.display = "block";
+  // 全ボックスの box-over クラスを除去し改めて指の下にあるボックスだけに box-over クラスを付与
+  document.querySelectorAll(".box").forEach(box => {box.classList.remove("box-over");});
+  const element = document.elementFromPoint(touch.clientX, touch.clientY);
+  if (isDroppableBox(element)) element.classList.add("box-over");
+};
+const handleTouchEnd = (e) => {
+  // 画面にタッチしている指を放したときのイベント
+  e.preventDefault();  // ブラウザ既定の処理を禁止
+  if (draggedCard == null) return;
+  const touch = e.changedTouches[0];  // タッチ終了位置
+  const element = document.elementFromPoint(touch.clientX, touch.clientY);
+  if (isDroppableBox(element)) element.appendChild(draggedCard);
+  // ドラッグ中のカードと指に追従させるカードをリセット
+  draggedCard.classList.remove("dragging");
+  document.querySelectorAll(".box").forEach(box => {box.classList.remove("box-over");});
+  draggedCard = null;
+  if (dragPreview) dragPreview.remove();
+  dragPreview = null;
+};
+if ("ontouchstart" in window) {
+  // スマートフォンであったらページにタッチイベントを登録
+  document.addEventListener("touchstart", handleTouchStart, { passive: false });
+  document.addEventListener("touchmove", handleTouchMove, { passive: false });
+  document.addEventListener("touchend", handleTouchEnd, false);
+}
+
+const check_button = document.getElementById('check');
+
+function check(){
+  if(${checkConditions.join(" && ")}){
+    result.innerHTML="正解！";
+  }else{
+    result.innerHTML="違います";
+  }
+}
+
+// スマホ対応: タッチイベントとクリックイベントを両方設定
+check_button.addEventListener('touchstart', function(event) {
+  check();
+}, false);
+
+check_button.addEventListener('click', function(event) {
+  check();
+}, false);
+// --><\/script>
+</body>
+</html>`;
+
+});
+
+document.getElementById("copy").addEventListener('click', () => {
+  code = document.getElementById("output").value
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(code);
+  } else {
+    document.execCommand(code);
+  }
+  document.getElementById("copy").innerText="コピー完了";
+})
+
+window.onload = function(){
+  document.getElementById("questions").style.display = 'none';
+  document.getElementById("preview").style.display = 'none';
+  document.getElementById("final_code").style.display = 'none';
+};
+
+</script>
+</body>
+</html>
