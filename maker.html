@@ -154,7 +154,8 @@ textarea{
   <div id="questionArea2"></div>
 
   <details id="final_code">
-    <summary>HTML</summary>
+    <summary>問題HTML（クリックして開いてください）
+    </summary>
     <button id="copy">コピー</button>
     <textarea id="output">
     </textarea>
@@ -189,41 +190,45 @@ function getBoard(){
   return board;
 }
 
-// ===== ワード解析 =====
+// ===== ワード解析（重複ラベル解決版） =====
 function analyzeWords(){
   const board=getBoard();
   let yoko=[],tate=[];
+  let labelMap = {}; // { "r-c": label }
+  let currentCharCode = 65; // A
 
-  // ヨコ
   for(let r=0;r<size;r++){
     for(let c=0;c<size;c++){
-      if(
-        board[r][c]!=="" &&
-        (c===0 || board[r][c-1]==="") &&
-        (c+1<size && board[r][c+1]!=="")
-      ){
-        let word="",cc=c;
-        while(cc<size && board[r][cc]!==""){
-          word+=board[r][cc]; cc++;
-        }
-        yoko.push({r,c,word});
-      }
-    }
-  }
+      if(board[r][c] === "") continue;
 
-  // タテ
-  for(let r=0;r<size;r++){
-    for(let c=0;c<size;c++){
-      if(
-        board[r][c]!=="" &&
-        (r===0 || board[r-1][c]==="") &&
-        (r+1<size && board[r+1][c]!=="")
-      ){
-        let word="",rr=r;
-        while(rr<size && board[rr][c]!==""){
-          word+=board[rr][c]; rr++;
+      // ヨコの開始点判定
+      const isYokoStart = (c===0 || board[r][c-1]==="") && (c+1<size && board[r][c+1]!=="");
+      // タテの開始点判定
+      const isTateStart = (r===0 || board[r-1][c]==="") && (r+1<size && board[r+1][c]!=="");
+
+      if(isYokoStart || isTateStart){
+        // そのマスにまだラベルがなければ新しく発行
+        const key = `${r}-${c}`;
+        if(!labelMap[key]){
+            labelMap[key] = String.fromCharCode(currentCharCode++);
         }
-        tate.push({r,c,word});
+        const label = labelMap[key];
+
+        if(isYokoStart){
+            let word="", cc=c;
+            while(cc<size && board[r][cc]!==""){
+                word+=board[r][cc]; cc++;
+            }
+            yoko.push({r, c, word, label});
+        }
+
+        if(isTateStart){
+            let word="", rr=r;
+            while(rr<size && board[rr][c]!==""){
+                word+=board[rr][c]; rr++;
+            }
+            tate.push({r, c, word, label});
+        }
       }
     }
   }
@@ -244,26 +249,22 @@ document.getElementById("questionBtn").addEventListener("click",()=>{
 
   let html="<h3>ヨコ</h3>";
 
-  num =0;
-
-  yoko.forEach((w,i)=>{
+  yoko.forEach((w)=>{
     html+=`
-      <div class="questionRow yoko" data-label="${String.fromCharCode(65+num)}">
+      <div class="questionRow yoko" data-label="${w.label}">
         <span class="wordLabel">${w.word}</span>
         <input type="text">
       </div>`;
-    num++;
   });
 
   html+="<h3>タテ</h3>";
 
-  tate.forEach((w,i)=>{
+  tate.forEach((w)=>{
     html+=`
-      <div class="questionRow tate" data-label="${String.fromCharCode(65+num)}">
+      <div class="questionRow tate" data-label="${w.label}">
         <span class="wordLabel">${w.word}</span>
         <input type="text">
       </div>`;
-    num++;
   });
   area.innerHTML=html;
   document.getElementById("preview").style.display = 'inline';
@@ -282,38 +283,24 @@ document.getElementById("preview").addEventListener("click",()=>{
   // 既存label削除
   inputs.forEach(i=>i.removeAttribute("label"));
 
-  let charCode=65;
-
-  // ヨコlabel付与
-  yoko.forEach(w=>{
-    const index=w.r*size+w.c;
-    const label=String.fromCharCode(charCode++);
-    inputs[index].setAttribute("label",label);
-    w.label=label;
+  // label付与（ヨコ・タテ統合）
+  yoko.concat(tate).forEach(w => {
+    const index = w.r * size + w.c;
+    inputs[index].setAttribute("label", w.label);
   });
 
-  // タテlabel付与
-  tate.forEach(w=>{
-    const index=w.r*size+w.c;
-    const label=String.fromCharCode(charCode++);
-    inputs[index].setAttribute("label",label);
-    w.label=label;
+  // 問題文のワードをラベル(A, B, C...)に置換
+  const yokoRows = document.querySelectorAll(".yoko");
+  yokoRows.forEach((row, i) => {
+    row.querySelector(".wordLabel").textContent = yoko[i].label;
   });
-
-  // 問題文のワードをABCに置換
-  const spans=document.querySelectorAll(".wordLabel");
-  let count=0;
-  spans.forEach(span=>{
-    if(count<yoko.length){
-      span.textContent=yoko[count].label;
-    }else{
-      span.textContent=tate[count-yoko.length].label;
-    }
-    count++;
+  const tateRows = document.querySelectorAll(".tate");
+  tateRows.forEach((row, i) => {
+    row.querySelector(".wordLabel").textContent = tate[i].label;
   });
 
   //////////////////////////////////////////////////
-  // 以下、既存生成処理（label反映追加のみ変更）
+  // 以下、既存生成処理
   //////////////////////////////////////////////////
 
   let boardHtml="<table class='container'>\n";
@@ -372,37 +359,25 @@ document.getElementById("preview").addEventListener("click",()=>{
   formattedCard+="</tr>\n</table>";
 
 //////////////////////////////////////////////////
-// ズレない問題文HTML生成
+// 問題文HTML生成
 //////////////////////////////////////////////////
 
-let questionHtml = "<!-- 問題文 -->\n";
+let questionHtml = "\n";
 
-// 問題文の各行を取得
 let rows = document.querySelectorAll("#questionArea .yoko");
 questionHtml += `<h2>ヨコ</h2>`;
-
 rows.forEach(row => {
-  // その行に保存されているlabelを取得
   const label = row.getAttribute("data-label");
-
-  // その行のinputを取得
   const text = row.querySelector("input").value.trim();
-
   questionHtml += `<p>${label}:${text}</p>\n`;
 });
 
 rows = document.querySelectorAll("#questionArea .tate");
 questionHtml += `<h2>タテ</h2>`;
 rows.forEach(row => {
-
-  // その行に保存されているlabelを取得
   const label = row.getAttribute("data-label");
-
-  // その行のinputを取得
   const text = row.querySelector("input").value.trim();
-
   questionHtml += `<p>${label}:${text}</p>\n`;
-
 });
 
   document.getElementById("questionArea2").innerHTML=questionHtml;
@@ -417,7 +392,7 @@ rows.forEach(row => {
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>card 0</title>
 <style type="text/css">
-html, body {  /* スマートフォンでの画面外スクロール禁止用 */
+html, body {
   overflow: hidden;
 }
 div.container {
@@ -425,7 +400,7 @@ div.container {
   flex-wrap: wrap;
   gap: 3px;
 }
-.box {  /* カードを置くボックス */
+.box {
   width: 30px;
   height: 30px;
   padding: 0;
@@ -438,10 +413,10 @@ div.container {
 .box_f{
   background-color:#74bffc;
 }
-.box-over {  /* ボックス上にカードがドラッグされてきたらボックスをやや白くする */
+.box-over {
   background: rgba(255, 255, 255, 0.3);
 }
-.card {  /* カード */
+.card {
   width: 30px;
   height: 30px;
   background-color:#eee;
@@ -451,20 +426,20 @@ div.container {
   margin:0;
 }
 .card::before {
-  content: attr(label); /* 表示したい文字 */
+  content: attr(label);
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   font-size: 15px;
-  color: rgba(0, 0, 0); /* 透明感 */
-  pointer-events: none; /* クリック無効 */
+  color: rgba(0, 0, 0);
+  pointer-events: none;
   white-space: nowrap;
 }
-.dragging {  /* ドラッグ中のカード (幽体離脱された側) */
+.dragging {
   opacity: 0.3;
 }
-.drag-preview {  /* ドラッグ中のカード (幽体離脱した側) (スマートフォン用) */
+.drag-preview {
   position: fixed;
   pointer-events: none;
   z-index: 1000;
@@ -473,29 +448,25 @@ div.container {
   transform: translate(-50%, -50%);
 }
 .box::before {
-  content: attr(label); /* 表示したい文字 */
+  content: attr(label);
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   font-size: 20px;
-  color: rgba(0, 0, 0, 0.3); /* 透明感 */
-  pointer-events: none; /* クリック無効 */
+  color: rgba(0, 0, 0, 0.3);
+  pointer-events: none;
   white-space: nowrap;
 }
 </style>
 </head>
 <body>
 
-<!-- 問題 -->
 ${boardHtml}
-
-<!-- カード -->
 ${formattedCard}
 
 <p>遊び方:文字をマスにドラッグアンドドロップして最後にcheckボタンを押してください</p>
 
-<!-- 問題 -->
 ${questionHtml}
 <button id="check">check</button>
 <p id="result"></p>
