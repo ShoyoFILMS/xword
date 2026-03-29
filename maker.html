@@ -304,7 +304,7 @@ document.getElementById("preview").addEventListener("click",()=>{
   //////////////////////////////////////////////////
 
   let boardHtml="<table class='container'>\n";
-  let cardHtml="";
+  let cardList=[]; // カードのHTMLパーツを一時保存する配列
   let checkConditions=[];
   let bCount=1;
   let sCount=1;
@@ -328,10 +328,11 @@ document.getElementById("preview").addEventListener("click",()=>{
           boardHtml+=`    <td class="box" id="${bId}" ${label?`label="${label}"`:""}></td>\n`;
         }
 
-        cardHtml+=`
+        // 配列にカードを追加
+        cardList.push(`
       <td class="box">
         <div class="card" draggable="true" id="${sId}" label="${val}"></div>
-      </td>`;
+      </td>`);
 
       }else{
         boardHtml+=`    <td></td>\n`;
@@ -342,19 +343,22 @@ document.getElementById("preview").addEventListener("click",()=>{
 
   boardHtml+="</table>";
 
+  // ===== シャッフル処理（Fisher-Yatesシャッフル） =====
+  for (let i = cardList.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [cardList[i], cardList[j]] = [cardList[j], cardList[i]];
+  }
+
  // カード整形
   let formattedCard='<table class="container">\n<tr>';
-  let cells=cardHtml.split("</td>");
   let counter=0;
 
-  cells.forEach(cell=>{
-    if(cell.trim()!==""){
-      formattedCard+=cell+"</td>";
+  cardList.forEach(cell=>{
+      formattedCard+=cell;
       counter++;
       if(counter%8===0){
         formattedCard+="</tr>\n<tr>";
       }
-    }
   });
   formattedCard+="</tr>\n</table>";
 
