@@ -1,0 +1,844 @@
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>card 0</title>
+<style type="text/css">
+html, body {
+}
+div.container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+}
+.box {
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 2px solid #333;
+  position: relative;
+  text-align:center;
+  margin:0;
+  background-color:#fff;
+}
+.box_f{
+  background-color:#74bffc;
+}
+.box-over {
+  background: rgba(255, 255, 255, 0.3);
+}
+.card {
+  width: 30px;
+  height: 30px;
+  background-color:#eee;
+  cursor: grab;
+  font-weight: bold;
+  text-align:center;
+  margin:0;
+}
+.card::before {
+  content: attr(label);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 15px;
+  color: rgba(0, 0, 0);
+  pointer-events: none;
+  white-space: nowrap;
+}
+.dragging {
+  opacity: 0.3;
+}
+.drag-preview {
+  position: fixed;
+  pointer-events: none;
+  z-index: 1000;
+  opacity: 0.7;
+  display: none;
+  transform: translate(-50%, -50%);
+}
+.box::before {
+  content: attr(label);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 20px;
+  color: rgba(0, 0, 0, 0.3);
+  pointer-events: none;
+  white-space: nowrap;
+}
+</style>
+</head>
+<body>
+
+<table class='container'>
+  <tr>
+    <td class="box box_f" id="b1" label="A"></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td class="box box_f" id="b2" label="B"></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr>
+    <td class="box box_f" id="b3" ></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td class="box box_f" id="b4" label="C"></td>
+    <td></td>
+    <td class="box box_f" id="b5" ></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr>
+    <td class="box box_f" id="b6" ></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td class="box box_f" id="b7" ></td>
+    <td></td>
+    <td class="box box_f" id="b8" ></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr>
+    <td class="box box_f" id="b9" ></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td class="box box_f" id="b10" ></td>
+    <td></td>
+    <td class="box box_f" id="b11" ></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr>
+    <td class="box box_f" id="b12" ></td>
+    <td></td>
+    <td class="box box_f" id="b13" label="D"></td>
+    <td class="box box_f" id="b14" ></td>
+    <td class="box box_f" id="b15" ></td>
+    <td class="box box_f" id="b16" ></td>
+    <td class="box box_f" id="b17" ></td>
+    <td class="box box_f" id="b18" ></td>
+    <td class="box box_f" id="b19" ></td>
+    <td class="box box_f" id="b20" ></td>
+    <td class="box box_f" id="b21" ></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr>
+    <td class="box box_f" id="b22" label="E"></td>
+    <td class="box box_f" id="b23" ></td>
+    <td class="box box_f" id="b24" ></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td class="box box_f" id="b25" ></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td></td>
+    <td class="box box_f" id="b26" ></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td class="box box_f" id="b27" label="F"></td>
+    <td></td>
+    <td></td>
+    <td class="box box_f" id="b28" label="G"></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td class="box box_f" id="b29" label="H"></td>
+    <td class="box box_f" id="b30" ></td>
+    <td class="box box_f" id="b31" ></td>
+    <td class="box box_f" id="b32" ></td>
+    <td class="box box_f" id="b33" ></td>
+    <td class="box box_f" id="b34" ></td>
+    <td class="box box_f" id="b35" ></td>
+    <td class="box box_f" id="b36" ></td>
+    <td class="box box_f" id="b37" ></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td class="box box_f" id="b38" ></td>
+    <td></td>
+    <td></td>
+    <td class="box box_f" id="b39" label="I"></td>
+    <td class="box box_f" id="b40" ></td>
+    <td class="box box_f" id="b41" ></td>
+    <td class="box box_f" id="b42" ></td>
+    <td class="box box_f" id="b43" ></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td class="box box_f" id="b44" label="J"></td>
+    <td class="box box_f" id="b45" ></td>
+    <td class="box box_f" id="b46" ></td>
+    <td class="box box_f" id="b47" ></td>
+    <td class="box box_f" id="b48" ></td>
+    <td class="box box_f" id="b49" ></td>
+    <td class="box box_f" id="b50" ></td>
+    <td></td>
+    <td class="box box_f" id="b51" ></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td class="box box_f" id="b52" ></td>
+    <td></td>
+    <td></td>
+    <td class="box box_f" id="b53" ></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td class="box box_f" id="b54" ></td>
+    <td></td>
+    <td></td>
+    <td class="box box_f" id="b55" ></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr>
+</table>
+<table class="container">
+<tr>
+      <td class="box">
+        <div class="card" draggable="true" id="s31" label="涅"></div>
+      </td>
+      <td class="box">
+        <div class="card" draggable="true" id="s28" label="猛"></div>
+      </td>
+      <td class="box">
+        <div class="card" draggable="true" id="s3" label="げ"></div>
+      </td>
+      <td class="box">
+        <div class="card" draggable="true" id="s17" label="陽"></div>
+      </td>
+      <td class="box">
+        <div class="card" draggable="true" id="s55" label="き"></div>
+      </td>
+      <td class="box">
+        <div class="card" draggable="true" id="s30" label="剣"></div>
+      </td>
+      <td class="box">
+        <div class="card" draggable="true" id="s12" label="幽"></div>
+      </td>
+      <td class="box">
+        <div class="card" draggable="true" id="s39" label="総"></div>
+      </td></tr>
+<tr>
+      <td class="box">
+        <div class="card" draggable="true" id="s53" label="突"></div>
+      </td>
+      <td class="box">
+        <div class="card" draggable="true" id="s47" label="エ"></div>
+      </td>
+      <td class="box">
+        <div class="card" draggable="true" id="s2" label="輪"></div>
+      </td>
+      <td class="box">
+        <div class="card" draggable="true" id="s6" label="回"></div>
+      </td>
+      <td class="box">
+        <div class="card" draggable="true" id="s14" label="越"></div>
+      </td>
+      <td class="box">
+        <div class="card" draggable="true" id="s18" label="極"></div>
+      </td>
+      <td class="box">
+        <div class="card" draggable="true" id="s5" label="廻"></div>
+      </td>
+      <td class="box">
+        <div class="card" draggable="true" id="s38" label="の"></div>
+      </td></tr>
+<tr>
+      <td class="box">
+        <div class="card" draggable="true" id="s23" label="張"></div>
+      </td>
+      <td class="box">
+        <div class="card" draggable="true" id="s48" label="ラ"></div>
+      </td>
+      <td class="box">
+        <div class="card" draggable="true" id="s13" label="人"></div>
+      </td>
+      <td class="box">
+        <div class="card" draggable="true" id="s29" label="真"></div>
+      </td>
+      <td class="box">
+        <div class="card" draggable="true" id="s27" label="冥"></div>
+      </td>
+      <td class="box">
+        <div class="card" draggable="true" id="s54" label="ツ"></div>
+      </td>
+      <td class="box">
+        <div class="card" draggable="true" id="s7" label="歩"></div>
+      </td>
+      <td class="box">
+        <div class="card" draggable="true" id="s50" label="ン"></div>
+      </td></tr>
+<tr>
+      <td class="box">
+        <div class="card" draggable="true" id="s32" label="槃"></div>
+      </td>
+      <td class="box">
+        <div class="card" draggable="true" id="s43" label="斬"></div>
+      </td>
+      <td class="box">
+        <div class="card" draggable="true" id="s35" label="曼"></div>
+      </td>
+      <td class="box">
+        <div class="card" draggable="true" id="s33" label="滅"></div>
+      </td>
+      <td class="box">
+        <div class="card" draggable="true" id="s46" label="・"></div>
+      </td>
+      <td class="box">
+        <div class="card" draggable="true" id="s4" label="退"></div>
+      </td>
+      <td class="box">
+        <div class="card" draggable="true" id="s45" label="ン"></div>
+      </td>
+      <td class="box">
+        <div class="card" draggable="true" id="s34" label="界"></div>
+      </td></tr>
+<tr>
+      <td class="box">
+        <div class="card" draggable="true" id="s42" label="練"></div>
+      </td>
+      <td class="box">
+        <div class="card" draggable="true" id="s51" label="拳"></div>
+      </td>
+      <td class="box">
+        <div class="card" draggable="true" id="s9" label="る"></div>
+      </td>
+      <td class="box">
+        <div class="card" draggable="true" id="s49" label="ワ"></div>
+      </td>
+      <td class="box">
+        <div class="card" draggable="true" id="s24" label="手"></div>
+      </td>
+      <td class="box">
+        <div class="card" draggable="true" id="s10" label="掌"></div>
+      </td>
+      <td class="box">
+        <div class="card" draggable="true" id="s36" label="荼"></div>
+      </td>
+      <td class="box">
+        <div class="card" draggable="true" id="s26" label="裏"></div>
+      </td></tr>
+<tr>
+      <td class="box">
+        <div class="card" draggable="true" id="s41" label="共"></div>
+      </td>
+      <td class="box">
+        <div class="card" draggable="true" id="s1" label="転"></div>
+      </td>
+      <td class="box">
+        <div class="card" draggable="true" id="s52" label="ル"></div>
+      </td>
+      <td class="box">
+        <div class="card" draggable="true" id="s25" label="鞠"></div>
+      </td>
+      <td class="box">
+        <div class="card" draggable="true" id="s16" label="陰"></div>
+      </td>
+      <td class="box">
+        <div class="card" draggable="true" id="s11" label="獄"></div>
+      </td>
+      <td class="box">
+        <div class="card" draggable="true" id="s19" label="破"></div>
+      </td>
+      <td class="box">
+        <div class="card" draggable="true" id="s15" label="拳"></div>
+      </td></tr>
+<tr>
+      <td class="box">
+        <div class="card" draggable="true" id="s44" label="ヤ"></div>
+      </td>
+      <td class="box">
+        <div class="card" draggable="true" id="s20" label="貫"></div>
+      </td>
+      <td class="box">
+        <div class="card" draggable="true" id="s22" label="鬼"></div>
+      </td>
+      <td class="box">
+        <div class="card" draggable="true" id="s37" label="羅"></div>
+      </td>
+      <td class="box">
+        <div class="card" draggable="true" id="s8" label="煉"></div>
+      </td>
+      <td class="box">
+        <div class="card" draggable="true" id="s21" label="手"></div>
+      </td>
+      <td class="box">
+        <div class="card" draggable="true" id="s40" label="刀"></div>
+      </td></tr>
+</table>
+
+<p>遊び方:文字をマスにドラッグアンドドロップして最後にcheckボタンを押してください</p>
+
+
+<h2>ヨコ</h2><p>D:本郷晶の技。実の貫手と虚の貫手を同時に繰り出す</p>
+<p>E:千秋祐馬の繰り出す強烈な張り手</p>
+<p>H:世戯煌臥之助の奥義。意、心、技、体、殺、功、幻、斬の念を内包した剣撃</p>
+<p>I:香坂しぐれの最終奥義。敵の武器とも一体になる事で分身を繰り出す</p>
+<p>J:ムエタイの技。相手の胸に強力な膝蹴りを繰り出す。漢字は「白神象の領域」</p>
+<h2>タテ</h2><p>A:ジュナザードの奥義。技撃軌道を制圧し技の応酬を仕掛ける。</p>
+<p>B:岬越寺秋雨の技。人間をドリブルする。</p>
+<p>C:引いた脚と、前に突き出した反対の腕を一直線にすることによって向かってくる相手を返り討ちにするカウンター技</p>
+<p>D:人間を手裏剣のように投げつける荒技</p>
+<p>F:九弦院響の使う、背後から組み付き、両膝で飛び膝蹴りを脇腹に放つ技</p>
+<p>G:逆鬼至緒が使う技。空手のあらゆる拳技で凄まじい連撃を放つ</p>
+
+<button id="check">check</button>
+<p id="result"></p>
+<script type="text/javascript"><!--
+// ----- パソコン・スマートフォン共通 -----
+let draggedCard = null; // ドラッグ中のカード
+function isDroppableBox(element) {  // その要素はカードを置けるボックスか
+  if (!element || !element.classList.contains("box")) return false;  // ボックスでないとだめ
+  if (element.classList.contains("card")) return false;  // カードであったらだめ
+  if (element.childElementCount > 0) return false;  // 先客のカードがいたらだめ
+  return true;
+}
+
+// ----- パソコンでのドラッグドロップ用 -----
+const handleDragCardStart = (e) => {
+  // カードをドラッグ開始したときのイベント
+  e.target.classList.add("dragging");
+  draggedCard = e.target;
+};
+const handleDragCardEnd = (e) => {
+  // カードをドラッグ終了したときのイベント
+  e.target.classList.remove("dragging");
+  draggedCard = null;
+};
+// カードたちにイベントを登録
+document.querySelectorAll(".card").forEach(card => {
+  card.addEventListener("dragstart", handleDragCardStart, false);
+  card.addEventListener("dragend", handleDragCardEnd, false);
+});
+
+const handleDragEnter = (e) => {
+  // 要素の上に何かがドラッグされてきたときのイベント
+  if (draggedCard == null) return;  // ドラッグされてきたのがカードでないなら何もしない
+  // ドラッグされてきたのがカードであってそこがカードを置けるボックスなら知らせるため目立たせる
+  if (isDroppableBox(e.target)) e.target.classList.add("box-over");
+};
+const handleDragOver = (e) => {
+  // 要素の上に何かがドラッグされているときのイベント
+  e.preventDefault();  // ブラウザ既定の処理を禁止
+  if (draggedCard == null) {  // ドラッグされてきたのがカードでないなら禁止カーソルにする
+    e.dataTransfer.dropEffect = "none";
+    return;
+  }
+  // そこがカードを置けるボックスでないなら禁止カーソルにする
+  e.dataTransfer.dropEffect = isDroppableBox(e.target) ? "move" : "none";
+  // 但しそこがドラッグ中のカード自身や元々いたボックス上空なら便宜上移動可能カーソルにする
+  // ドラッグし始めていきなり禁止マークが出るとインタフェースとして微妙なため
+  if (e.target == draggedCard) e.dataTransfer.dropEffect = "move";
+  if (e.target == draggedCard.parentElement) e.dataTransfer.dropEffect = "move";
+};
+const handleDragLeave = (e) => {
+  // 要素の上から何かが去っていったときのイベント
+  e.target.classList.remove("box-over");  // もし目立たせていたら目立たなくする
+};
+const handleDrop = (e) => {
+  // 要素の上でカードが手放されたときのイベント
+  e.preventDefault();  // ブラウザ既定の処理を禁止
+  e.target.classList.remove("box-over");  // もし目立たせていたら目立たなくする
+  // ドラッグされてきたのがカードであってそこがカードを置けるボックスならそこにカードを追加
+  if (draggedCard && isDroppableBox(e.target)) e.target.appendChild(draggedCard);
+};
+// ページ上に何かがドラッグされてきた/いる/去る/落とされるイベントを登録
+document.addEventListener("dragenter", handleDragEnter, false);
+document.addEventListener("dragover", handleDragOver, false);
+document.addEventListener("dragleave", handleDragLeave, false);
+document.addEventListener("drop", handleDrop, false);
+
+// ----- スマートフォンでのドラッグドロップ用 -----
+let dragPreview = null; // 指に追従させるカード
+const handleTouchStart = (e) => {
+  // 画面にタッチしたときのイベント
+  const target = e.target;
+  if (!target.classList.contains("card")) return;
+  draggedCard = target;
+  draggedCard.classList.add("dragging");
+  // 指に追従させるカードを作成
+  dragPreview = draggedCard.cloneNode(true);
+  dragPreview.classList.add("drag-preview");
+  document.body.appendChild(dragPreview);
+};
+const handleTouchMove = (e) => {
+  // 画面にタッチしている指を動かしたときのイベント
+  if (draggedCard == null) return;
+  e.preventDefault();  // ブラウザ既定の処理を禁止
+  const touch = e.touches[0];  // 最初のタッチポイント
+  // 指に追従させるカードを指に追従させる
+  dragPreview.style.left = `${touch.clientX}px`;
+  dragPreview.style.top = `${touch.clientY}px`;
+  dragPreview.style.display = "block";
+  // 全ボックスの box-over クラスを除去し改めて指の下にあるボックスだけに box-over クラスを付与
+  document.querySelectorAll(".box").forEach(box => {box.classList.remove("box-over");});
+  const element = document.elementFromPoint(touch.clientX, touch.clientY);
+  if (isDroppableBox(element)) element.classList.add("box-over");
+};
+const handleTouchEnd = (e) => {
+  // 画面にタッチしている指を放したときのイベント
+  e.preventDefault();  // ブラウザ既定の処理を禁止
+  if (draggedCard == null) return;
+  const touch = e.changedTouches[0];  // タッチ終了位置
+  const element = document.elementFromPoint(touch.clientX, touch.clientY);
+  if (isDroppableBox(element)) element.appendChild(draggedCard);
+  // ドラッグ中のカードと指に追従させるカードをリセット
+  draggedCard.classList.remove("dragging");
+  document.querySelectorAll(".box").forEach(box => {box.classList.remove("box-over");});
+  draggedCard = null;
+  if (dragPreview) dragPreview.remove();
+  dragPreview = null;
+};
+if ("ontouchstart" in window) {
+  // スマートフォンであったらページにタッチイベントを登録
+  document.addEventListener("touchstart", handleTouchStart, { passive: false });
+  document.addEventListener("touchmove", handleTouchMove, { passive: false });
+  document.addEventListener("touchend", handleTouchEnd, false);
+}
+
+const check_button = document.getElementById('check');
+
+function check(){
+  if(document.getElementById("b1").firstElementChild?.getAttribute("label") === "転" && document.getElementById("b2").firstElementChild?.getAttribute("label") === "輪" && document.getElementById("b3").firstElementChild?.getAttribute("label") === "げ" && document.getElementById("b4").firstElementChild?.getAttribute("label") === "退" && document.getElementById("b5").firstElementChild?.getAttribute("label") === "廻" && document.getElementById("b6").firstElementChild?.getAttribute("label") === "回" && document.getElementById("b7").firstElementChild?.getAttribute("label") === "歩" && document.getElementById("b8").firstElementChild?.getAttribute("label") === "煉" && document.getElementById("b9").firstElementChild?.getAttribute("label") === "る" && document.getElementById("b10").firstElementChild?.getAttribute("label") === "掌" && document.getElementById("b11").firstElementChild?.getAttribute("label") === "獄" && document.getElementById("b12").firstElementChild?.getAttribute("label") === "幽" && document.getElementById("b13").firstElementChild?.getAttribute("label") === "人" && document.getElementById("b14").firstElementChild?.getAttribute("label") === "越" && document.getElementById("b15").firstElementChild?.getAttribute("label") === "拳" && document.getElementById("b16").firstElementChild?.getAttribute("label") === "陰" && document.getElementById("b17").firstElementChild?.getAttribute("label") === "陽" && document.getElementById("b18").firstElementChild?.getAttribute("label") === "極" && document.getElementById("b19").firstElementChild?.getAttribute("label") === "破" && document.getElementById("b20").firstElementChild?.getAttribute("label") === "貫" && document.getElementById("b21").firstElementChild?.getAttribute("label") === "手" && document.getElementById("b22").firstElementChild?.getAttribute("label") === "鬼" && document.getElementById("b23").firstElementChild?.getAttribute("label") === "張" && document.getElementById("b24").firstElementChild?.getAttribute("label") === "手" && document.getElementById("b25").firstElementChild?.getAttribute("label") === "鞠" && document.getElementById("b26").firstElementChild?.getAttribute("label") === "裏" && document.getElementById("b27").firstElementChild?.getAttribute("label") === "冥" && document.getElementById("b28").firstElementChild?.getAttribute("label") === "猛" && document.getElementById("b29").firstElementChild?.getAttribute("label") === "真" && document.getElementById("b30").firstElementChild?.getAttribute("label") === "剣" && document.getElementById("b31").firstElementChild?.getAttribute("label") === "涅" && document.getElementById("b32").firstElementChild?.getAttribute("label") === "槃" && document.getElementById("b33").firstElementChild?.getAttribute("label") === "滅" && document.getElementById("b34").firstElementChild?.getAttribute("label") === "界" && document.getElementById("b35").firstElementChild?.getAttribute("label") === "曼" && document.getElementById("b36").firstElementChild?.getAttribute("label") === "荼" && document.getElementById("b37").firstElementChild?.getAttribute("label") === "羅" && document.getElementById("b38").firstElementChild?.getAttribute("label") === "の" && document.getElementById("b39").firstElementChild?.getAttribute("label") === "総" && document.getElementById("b40").firstElementChild?.getAttribute("label") === "刀" && document.getElementById("b41").firstElementChild?.getAttribute("label") === "共" && document.getElementById("b42").firstElementChild?.getAttribute("label") === "練" && document.getElementById("b43").firstElementChild?.getAttribute("label") === "斬" && document.getElementById("b44").firstElementChild?.getAttribute("label") === "ヤ" && document.getElementById("b45").firstElementChild?.getAttribute("label") === "ン" && document.getElementById("b46").firstElementChild?.getAttribute("label") === "・" && document.getElementById("b47").firstElementChild?.getAttribute("label") === "エ" && document.getElementById("b48").firstElementChild?.getAttribute("label") === "ラ" && document.getElementById("b49").firstElementChild?.getAttribute("label") === "ワ" && document.getElementById("b50").firstElementChild?.getAttribute("label") === "ン" && document.getElementById("b51").firstElementChild?.getAttribute("label") === "拳" && document.getElementById("b52").firstElementChild?.getAttribute("label") === "ル" && document.getElementById("b53").firstElementChild?.getAttribute("label") === "突" && document.getElementById("b54").firstElementChild?.getAttribute("label") === "ツ" && document.getElementById("b55").firstElementChild?.getAttribute("label") === "き"){
+    result.innerHTML="正解！";
+  }else{
+    result.innerHTML="違います";
+  }
+}
+
+// スマホ対応: タッチイベントとクリックイベントを両方設定
+check_button.addEventListener('touchstart', function(event) {
+  check();
+}, false);
+
+check_button.addEventListener('click', function(event) {
+  check();
+}, false);
+// --></script>
+</body>
+</html>
